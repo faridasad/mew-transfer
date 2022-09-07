@@ -3,6 +3,8 @@ const cors = require("cors");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const File = require("./models/File");
+const archiver = require("archiver");
+const fs = require("fs");
 
 const upload = multer({ dest: "./uploads" });
 
@@ -20,21 +22,54 @@ mongoose.connect(
   "mongodb+srv://nonwhm:bruh123@filesharing.vh4r0an.mongodb.net/?retryWrites=true&w=majority"
 );
 
-app.get("/upload", (req, res) => {
-  res.send("hi");
-});
-
 app.post("/upload", upload.array("file"), async (req, res) => {
-  if (req.files.length === 1) {
+  const { files } = req;
+
+  if (files.length === 1) {
     const fileData = {
-      path: req.files[0].path,
-      originalName: req.files[0].originalname,
+      path: files[0].path,
+      originalName: files[0].originalname,
     };
 
     const file = await File.create(fileData);
     res.send({ fileLink: `file/${file.id}` });
-  }else if(req.files.length > 1){
-    // add the files to folder and download // todo
+
+  } else if (files.length > 1) {
+
+    const zipFile = archiver("zip", { zlib: { level: 9 } });
+
+    zipFile.on("warning", (error) => {
+      console.log("warning:", error);
+    });
+
+    zipFile.on("error", (error) => {
+      console.error("error occurred :", error);
+    });
+
+    const randomPath = Math.random()
+
+    const writeStream = fs.createWriteStream(`uploads/${randomPath}`);
+    zipFile.pipe(writeStream);
+
+    await files.forEach(file => {
+      zipFile.append(fs.createReadStream(file.path), { name: file.originalname });
+    })
+    await zipFile.finalize();
+
+    files.forEach(file => {
+      fs.unlink(file.path, err => {
+        if (err) console.log(err);
+      })
+    })
+
+    const fileData = {
+      path: `uploads/${randomPath}`,
+      originalName: `files[${files.length}].zip`
+    }
+
+    const file = await File.create(fileData);
+    res.send({ fileLink: `file/${file.id}` });
+
   }
 });
 
