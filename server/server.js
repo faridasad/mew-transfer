@@ -25,51 +25,60 @@ mongoose.connect(
 app.post("/upload", upload.array("file"), async (req, res) => {
   const { files } = req;
 
-  if (files.length === 1) {
-    const fileData = {
-      path: files[0].path,
-      originalName: files[0].originalname,
-    };
+  try {
+    files.forEach(
+      (file) =>
+        file.size > 25 * 1000 * 1000 &&
+        res.status(400).send({ error_msg: "File size exceeded" })
+    );
 
-    const file = await File.create(fileData);
-    res.send({ fileLink: `file/${file.id}` });
+    if (files.length === 1) {
+      const fileData = {
+        path: files[0].path,
+        originalName: files[0].originalname,
+      };
 
-  } else if (files.length > 1) {
+      const file = await File.create(fileData);
+      res.send({ fileLink: `file/${file.id}` });
+    } 
+    else if (files.length > 1) {
+      const zipFile = archiver("zip", { zlib: { level: 9 } });
 
-    const zipFile = archiver("zip", { zlib: { level: 9 } });
+      zipFile.on("warning", (error) => {
+        console.log("warning:", error);
+      });
 
-    zipFile.on("warning", (error) => {
-      console.log("warning:", error);
-    });
+      zipFile.on("error", (error) => {
+        console.error("error occurred :", error);
+      });
 
-    zipFile.on("error", (error) => {
-      console.error("error occurred :", error);
-    });
+      const randomPath = Math.random();
+      const writeStream = fs.createWriteStream(`uploads/${randomPath}`);
+      zipFile.pipe(writeStream);
 
-    const randomPath = Math.random()
+      await files.forEach((file) => {
+        zipFile.append(fs.createReadStream(file.path), {
+          name: file.originalname,
+        });
+      });
+      await zipFile.finalize();
 
-    const writeStream = fs.createWriteStream(`uploads/${randomPath}`);
-    zipFile.pipe(writeStream);
+      files.forEach((file) => {
+        fs.unlink(file.path, (err) => {
+          if (err) console.log(err);
+        });
+      });
 
-    await files.forEach(file => {
-      zipFile.append(fs.createReadStream(file.path), { name: file.originalname });
-    })
-    await zipFile.finalize();
+      const fileData = {
+        path: `uploads/${randomPath}`,
+        originalName: `files[${files.length}].zip`,
+      };
 
-    files.forEach(file => {
-      fs.unlink(file.path, err => {
-        if (err) console.log(err);
-      })
-    })
-
-    const fileData = {
-      path: `uploads/${randomPath}`,
-      originalName: `files[${files.length}].zip`
+      const file = await File.create(fileData);
+      res.send({ fileLink: `file/${file.id}` });
     }
-
-    const file = await File.create(fileData);
-    res.send({ fileLink: `file/${file.id}` });
-
+  } catch (error) {
+    res.send(error)
   }
 });
 
