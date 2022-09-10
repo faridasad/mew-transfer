@@ -4,6 +4,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Nunito Sans", sans-serif;
 }
 
 img {
@@ -69,87 +70,135 @@ main {
     .divider {
       width: 90%;
       height: 1px;
-      margin: 0 auto; 
+      margin: 0 auto;
       background-color: #ccc;
-      opacity: .7;
+      opacity: 0.7;
+    }
+
+    .add-files.active {
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-top: 1rem;
+
+      .files-con {
+        height: 150px;
+        width: calc(100% - 1rem);
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: .3em;
+        overflow: auto;
+
+        .filename {
+          background-color: rgb(248, 248, 248);
+          padding: 0.5rem;
+          width: 100%;
+          border-radius: 4px;
+        }
+      }
+
+      /* Custom scrollbar */
+        .files-con::-webkit-scrollbar {
+          width: 5px;
+        }
+        .files-con::-webkit-scrollbar-track {
+          background: rgb(238, 238, 238);      
+        }
+        .files-con::-webkit-scrollbar-thumb {
+          border-radius: 20px;
+          border: 3px solid rgb(63, 63, 63);
+        }
+      /* Custom scrollbar */
+
+      .wrapper {
+        justify-content: flex-start;
+
+        flex-direction: row;
+        padding: 0 1.5rem;
+      }
     }
 
     .add-files {
-      
-      position: relative;
+      height: 200px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 1rem;
-      padding: 4rem 1.5rem;
+      justify-content: center;
 
-      input[type="file"] {
-        cursor: pointer;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        color: transparent;
-      }
-      input[type="file"]::-webkit-file-upload-button {
-        visibility: hidden;
-      }
-      input[type="file"]:hover ~ .add-button {
-        background-color: rgba(50 132 255 / 1);
-      }
+      .wrapper {
+        width: 100%;
+        padding: 3rem 1.5rem;
+        gap: 1rem;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
 
-      .add-button {
-        pointer-events: none;
-        user-select: none;
+        input[type="file"] {
+          position: absolute;
+          inset: 0;
+          cursor: pointer;
+          opacity: 0;
+        }
+        input[type="file"]::-webkit-file-upload-button {
+          visibility: hidden;
+        }
+        input[type="file"]:hover ~ .add-button {
+          background-color: rgba(50 132 255 / 1);
+        }
 
-        width: 2.5rem;
-        aspect-ratio: 1 / 1;
+        .add-button {
+          pointer-events: none;
+          user-select: none;
 
-        display: grid;
-        place-items: center;
+          width: 2.5rem;
+          aspect-ratio: 1 / 1;
 
-        color: #fff;
-        background-color: rgba(50 132 255 / 0.8);
-        font-size: 1.5rem;
-        font-weight: bold;
+          display: grid;
+          place-items: center;
 
-        border-radius: 50%;
-        z-index: 2;
-      }
+          color: #fff;
+          background-color: rgba(50 132 255 / 0.8);
+          font-size: 1.5rem;
+          font-weight: bold;
 
-      p {
-        pointer-events: none;
-        z-index: 2;
-      }
+          border-radius: 50%;
+          z-index: 2;
+        }
 
-      .uploaded-filename {
-        font-size: 1.3rem;
-        font-weight: 500;
+        .input-text {
+          text-align: center;
+          pointer-events: none;
+
+          p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+          }
+        }
       }
     }
 
     .details {
-
       display: flex;
       flex-direction: column;
 
       border-top: 1px solid #ccc;
       border-bottom: 1px solid #ccc;
 
-      input:focus::placeholder, textarea:focus::placeholder {
+      input:focus::placeholder,
+      textarea:focus::placeholder {
         opacity: 0;
       }
 
-      input, textarea {
+      input,
+      textarea {
         width: 100%;
         padding: 1rem;
         border: 0;
         outline: 0;
         resize: none;
       }
-
-      
     }
 
     .link-container {
@@ -171,11 +220,11 @@ main {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: .5rem;
+        padding: 0.5rem;
         border-radius: 50%;
-        transition: .2s background-color;
+        transition: 0.2s background-color;
 
-        &:hover{
+        &:hover {
           background-color: rgb(220, 220, 220);
         }
       }
@@ -184,19 +233,22 @@ main {
     button {
       width: 60%;
       margin-inline: auto;
-      padding: .75rem 1rem;
+      padding: 0.75rem 1rem;
       background-color: rgba(50 132 255 / 0.8);
       border: none;
       border-radius: 2rem;
       color: #fff;
       font-size: 1rem;
-      cursor: pointer;
     }
 
-    button:hover {
+    button:disabled {
+      cursor: not-allowed;
+      background-color: #ccc;
+    }
+
+    button:hover:enabled {
+      cursor: pointer;
       background-color: rgba(50 132 255 / 1);
     }
-
-
   }
 }

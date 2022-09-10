@@ -1,20 +1,22 @@
 import "./app.scss";
 import axios from "axios";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 function App() {
-  const [filename, setFilename] = useState("");
+  const [userFiles, setUserFiles] = useState([]);
   const [itemlink, setItemlink] = useState("");
-  const [nextStep, setNextStep] = useState(false);
-  const data = new FormData();
+  const formData = useMemo(() => new FormData(), []);
 
   const uploadFile = (files) => {
+    let arr = [];
     Array.from(files).forEach((file) => {
-      data.append("file", file);
+      formData.append(file.name, file);
+      arr.push(file.name);
+      setUserFiles([...userFiles, ...arr]);
     });
 
-    for (const value of data.values()) {
-      console.log(value);
+    for(const value of formData.values()){
+      console.log(value)
     }
   };
 
@@ -23,11 +25,11 @@ function App() {
     uploadFile(files);
   };
 
-  const getLink = () => {
+  const getLink = (e) => {
+    e.preventDefault()
     axios
-      .post("http://localhost:3000/upload", data)
-      .then(res => console.log(res.statusText))
-      /* .then((res) => setItemlink(res.data.fileLink)); */
+      .post("http://localhost:3000/upload", formData)
+      .then((res) => setItemlink(res.data.fileLink))
   };
 
   return (
@@ -43,23 +45,31 @@ function App() {
         </nav>
       </header>
       <main>
-        <form className="upload-container" encType="multipart/form-data">
-          <div className="add-files">
-            <input
-              onChange={addFile}
-              type="file"
-              id="addFile"
-              multiple
-              required
-            />
-            <span className="add-button">+</span>
-            <p>Add your files</p>
-            {filename && (
-              <>
-                <span className="divider"></span>
-                <span className="uploaded-filename">{filename}</span>
-              </>
+        <form className="upload-container" encType="multipart/form-data" onSubmit={getLink}>
+          <div className={"add-files " + (userFiles.length > 0 && "active")}>
+            {userFiles.length > 0 && (
+              <div className="files-con">
+                {userFiles.map((file, index) => (
+                  <span key={index} className="filename">
+                    {file}
+                  </span>
+                ))}
+              </div>
             )}
+            <div className="wrapper">
+              <input
+                onChange={addFile}
+                type="file"
+                id="addFile"
+                multiple
+                required
+              />
+              <span className="add-button">+</span>
+              <span className="input-text">
+                Add your files <br /> <p>(Max size: 25MB)</p>
+              </span>
+              <div className="uploaded-files"></div>
+            </div>
           </div>
           <div className="details">
             <input type="text" name="" id="" placeholder="Title" />
@@ -72,25 +82,24 @@ function App() {
               placeholder="Message"
             ></textarea>
           </div>
-          {nextStep && (
+          {itemlink && (
             <div className="link-container">
               <a href={`http://localhost:3000/${itemlink}`}>{itemlink}</a>
               <span
                 onClick={() =>
-                  navigator.clipboard.writeText(
-                    `http://localhost:3000/${itemlink}`
-                  )
+                  navigator.clipboard.writeText(`http://localhost:3000/${itemlink}`)
                 }
               >
                 <ion-icon name="copy-outline"></ion-icon>
               </span>
             </div>
           )}
-          {!nextStep && (
-            <button type="submit" onClick={(e) => {e.preventDefault(); getLink()} }>
-              Get a link
-            </button>
-          )}
+          <button
+            disabled={userFiles.length === 0}
+            type="submit"
+          >
+            Get a link
+          </button>
         </form>
       </main>
     </>
