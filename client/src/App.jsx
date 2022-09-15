@@ -10,7 +10,7 @@ function App() {
   const uploadFile = (files) => {
     let arr = [];
     Array.from(files).forEach((file) => {
-      formData.append(file.name, file);
+      formData.append('file', file);
       arr.push(file.name);
       setUserFiles([...userFiles, ...arr]);
     });
