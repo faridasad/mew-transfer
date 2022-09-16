@@ -22,16 +22,19 @@ mongoose.connect(
   "mongodb+srv://nonwhm:bruh123@filesharing.vh4r0an.mongodb.net/?retryWrites=true&w=majority"
 );
 
-app.post("/upload", upload.array("file"), async (req, res) => {
+app.post("/upload", upload.array("file"), async (req, res, next) => {
   const { files } = req;
 
-  try {
-    files.forEach(
+   /* files.forEach(
       (file) =>
         file.size > 25 * 1000 * 1000 &&
-        res.status(400).send({ error_msg: "File size exceeded" })
+        res
+          .status(400)
+          .send({ error_type: "size error", error_msg: "File size exceeded!" })
     );
+ */
 
+  try {
     if (files.length === 1) {
       const fileData = {
         path: files[0].path,
@@ -40,8 +43,7 @@ app.post("/upload", upload.array("file"), async (req, res) => {
 
       const file = await File.create(fileData);
       res.send({ fileLink: `file/${file.id}` });
-    } 
-    else if (files.length > 1) {
+    } else if (files.length > 1) {
       const zipFile = archiver("zip", { zlib: { level: 9 } });
 
       zipFile.on("warning", (error) => {
@@ -78,7 +80,7 @@ app.post("/upload", upload.array("file"), async (req, res) => {
       res.send({ fileLink: `file/${file.id}` });
     }
   } catch (error) {
-    res.send(error)
+    next()
   }
 });
 
