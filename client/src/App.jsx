@@ -5,19 +5,24 @@ import { useState, useMemo } from "react";
 function App() {
   const [userFiles, setUserFiles] = useState([]);
   const [itemlink, setItemlink] = useState("");
+  const [error, setError] = useState({
+    status: false,
+    errorText: "",
+  });
   const formData = useMemo(() => new FormData(), []);
 
   const uploadFile = (files) => {
     let arr = [];
     Array.from(files).forEach((file) => {
-      formData.append('file', file);
-      arr.push(file.name);
-      setUserFiles([...userFiles, ...arr]);
+      if (file.size > 25 * 1000 * 1000)
+        setError({ status: true, errorText: "File size exceeded!" });
+      else {
+        setError({...error, status: false})
+        formData.append("file", file);
+        arr.push(file.name);
+        setUserFiles([...userFiles, ...arr]);
+      }
     });
-
-    for(const value of formData.values()){
-      console.log(value)
-    }
   };
 
   const addFile = (e) => {
@@ -26,10 +31,17 @@ function App() {
   };
 
   const getLink = (e) => {
-    e.preventDefault()
+    setError({ ...error, status: false });
+    e.preventDefault();
     axios
       .post("http://localhost:3000/upload", formData)
-      .then((res) => setItemlink(res.data.fileLink))
+      .then((res) => {
+        setItemlink(res.data.fileLink);
+      })
+      .catch((err) => {
+        err.response.status == 400 &&
+          setError({ status: true, errorText: err.response.data.error_msg });
+      });
   };
 
   return (
@@ -45,7 +57,11 @@ function App() {
         </nav>
       </header>
       <main>
-        <form className="upload-container" encType="multipart/form-data" onSubmit={getLink}>
+        <form
+          className="upload-container"
+          encType="multipart/form-data"
+          onSubmit={getLink}
+        >
           <div className={"add-files " + (userFiles.length > 0 && "active")}>
             {userFiles.length > 0 && (
               <div className="files-con">
@@ -82,22 +98,24 @@ function App() {
               placeholder="Message"
             ></textarea>
           </div>
+          {error.status == true && (
+            <span className="error-text">{error.errorText}</span>
+          )}
           {itemlink && (
             <div className="link-container">
               <a href={`http://localhost:3000/${itemlink}`}>{itemlink}</a>
               <span
                 onClick={() =>
-                  navigator.clipboard.writeText(`http://localhost:3000/${itemlink}`)
+                  navigator.clipboard.writeText(
+                    `http://localhost:3000/${itemlink}`
+                  )
                 }
               >
                 <ion-icon name="copy-outline"></ion-icon>
               </span>
             </div>
           )}
-          <button
-            disabled={userFiles.length === 0}
-            type="submit"
-          >
+          <button disabled={userFiles.length === 0} type="submit">
             Get a link
           </button>
         </form>
