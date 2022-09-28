@@ -17,7 +17,7 @@ function App() {
       if (file.size > 25 * 1000 * 1000)
         setError({ status: true, errorText: "File size exceeded!" });
       else {
-        setError({...error, status: false})
+        setError({ ...error, status: false });
         formData.append("file", file);
         arr.push(file.name);
         setUserFiles([...userFiles, ...arr]);
@@ -28,6 +28,30 @@ function App() {
   const addFile = (e) => {
     const files = e.target.files;
     uploadFile(files);
+  };
+
+  const deleteFile = (file, index) => {
+
+
+    let values = formData.getAll("file");
+    values.splice(index, 1);
+
+    formData.delete("file");
+
+    values.forEach(item => {
+      formData.append("file", item);
+    })
+    
+
+    /*  for (const value of formData.values()) {
+      console.log(value);
+    }  */
+    
+    setUserFiles(userFiles.filter((item) => item !== file));
+    /* console.log([...userFiles]); */
+
+
+    
   };
 
   const getLink = (e) => {
@@ -67,7 +91,8 @@ function App() {
               <div className="files-con">
                 {userFiles.map((file, index) => (
                   <span key={index} className="filename">
-                    {file}
+                    <p>{file}</p>
+                    <p onClick={() => deleteFile(file, index)}>X</p>
                   </span>
                 ))}
               </div>
@@ -101,7 +126,7 @@ function App() {
           {error.status == true && (
             <span className="error-text">{error.errorText}</span>
           )}
-          {itemlink && (
+          {(itemlink && userFiles.length > 0) && (
             <div className="link-container">
               <a href={`http://localhost:3000/${itemlink}`}>{itemlink}</a>
               <span
