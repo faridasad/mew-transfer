@@ -11,6 +11,7 @@ function App() {
   });
   const formData = useMemo(() => new FormData(), []);
 
+
   const uploadFile = (files) => {
     let arr = [];
     Array.from(files).forEach((file) => {
@@ -31,8 +32,6 @@ function App() {
   };
 
   const deleteFile = (file, index) => {
-
-
     let values = formData.getAll("file");
     values.splice(index, 1);
 
@@ -41,17 +40,7 @@ function App() {
     values.forEach(item => {
       formData.append("file", item);
     })
-    
-
-    /*  for (const value of formData.values()) {
-      console.log(value);
-    }  */
-    
     setUserFiles(userFiles.filter((item) => item !== file));
-    /* console.log([...userFiles]); */
-
-
-    
   };
 
   const getLink = (e) => {
@@ -104,6 +93,7 @@ function App() {
                 id="addFile"
                 multiple
                 required
+                title=""
               />
               <span className="add-button">+</span>
               <span className="input-text">
