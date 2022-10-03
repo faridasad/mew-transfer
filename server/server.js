@@ -24,8 +24,10 @@ mongoose.connect(
 
 app.post("/upload", upload.array("file"), async (req, res, next) => {
   const { files } = req;
+  const { title } = req.body;
 
-   /* files.forEach(
+
+  /* files.forEach(
       (file) =>
         file.size > 25 * 1000 * 1000 &&
         res
@@ -73,14 +75,14 @@ app.post("/upload", upload.array("file"), async (req, res, next) => {
 
       const fileData = {
         path: `uploads/${randomPath}`,
-        originalName: `files[${files.length}].zip`,
+        originalName: `${title}.zip`,
       };
 
       const file = await File.create(fileData);
       res.send({ fileLink: `file/${file.id}` });
     }
   } catch (error) {
-    next()
+    next();
   }
 });
 

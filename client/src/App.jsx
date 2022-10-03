@@ -1,6 +1,6 @@
 import "./app.scss";
 import axios from "axios";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 
 function App() {
   const [userFiles, setUserFiles] = useState([]);
@@ -10,7 +10,7 @@ function App() {
     errorText: "",
   });
   const formData = useMemo(() => new FormData(), []);
-
+  const titleInput = useRef(null);
 
   const uploadFile = (files) => {
     let arr = [];
@@ -24,6 +24,8 @@ function App() {
         setUserFiles([...userFiles, ...arr]);
       }
     });
+      titleInput.current.value = "MY_FILES";
+ 
   };
 
   const addFile = (e) => {
@@ -37,17 +39,28 @@ function App() {
 
     formData.delete("file");
 
-    values.forEach(item => {
+    values.forEach((item) => {
       formData.append("file", item);
-    })
+    });
     setUserFiles(userFiles.filter((item) => item !== file));
   };
 
   const getLink = (e) => {
     setError({ ...error, status: false });
     e.preventDefault();
+
+    formData.append("title", titleInput.current.value);
+
     axios
-      .post("http://localhost:3000/upload", formData)
+      .post(
+        "http://localhost:3000/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
       .then((res) => {
         setItemlink(res.data.fileLink);
       })
@@ -89,10 +102,12 @@ function App() {
             <div className="wrapper">
               <input
                 onChange={addFile}
+                name="file"
                 type="file"
                 id="addFile"
                 multiple
                 required
+                directory="true"
                 title=""
               />
               <span className="add-button">+</span>
@@ -103,7 +118,13 @@ function App() {
             </div>
           </div>
           <div className="details">
-            <input type="text" name="" id="" placeholder="Title" />
+            <input
+              type="text"
+              ref={titleInput}
+              name=""
+              id=""
+              placeholder="Title"
+            />
             <span className="divider"></span>
             <textarea
               name=""
@@ -116,7 +137,7 @@ function App() {
           {error.status == true && (
             <span className="error-text">{error.errorText}</span>
           )}
-          {(itemlink && userFiles.length > 0) && (
+          {itemlink && userFiles.length > 0 && (
             <div className="link-container">
               <a href={`http://localhost:3000/${itemlink}`}>{itemlink}</a>
               <span
