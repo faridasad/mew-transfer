@@ -7,7 +7,6 @@ const archiver = require("archiver");
 const fs = require("fs");
 
 const upload = multer({ dest: "./uploads" });
-
 const app = express();
 
 app.use(cors());
@@ -25,16 +24,6 @@ mongoose.connect(
 app.post("/upload", upload.array("file"), async (req, res, next) => {
   const { files } = req;
   const { title } = req.body;
-
-
-  /* files.forEach(
-      (file) =>
-        file.size > 25 * 1000 * 1000 &&
-        res
-          .status(400)
-          .send({ error_type: "size error", error_msg: "File size exceeded!" })
-    );
- */
 
   try {
     if (files.length === 1) {
