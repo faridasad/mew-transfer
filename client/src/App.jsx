@@ -20,12 +20,12 @@ function App() {
       else {
         setError({ ...error, status: false });
         formData.append("file", file);
-        arr.push(file.name);
+        arr.push({ name: file.name, size: file.size, type: file.type });
         setUserFiles([...userFiles, ...arr]);
       }
     });
-      titleInput.current.value = "MY_FILES";
- 
+
+    titleInput.current.value = files[0].name
   };
 
   const addFile = (e) => {
@@ -52,15 +52,11 @@ function App() {
     formData.append("title", titleInput.current.value);
 
     axios
-      .post(
-        "http://localhost:3000/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
+      .post("http://localhost:3000/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((res) => {
         setItemlink(res.data.fileLink);
       })
@@ -93,8 +89,11 @@ function App() {
               <div className="files-con">
                 {userFiles.map((file, index) => (
                   <span key={index} className="filename">
-                    <p>{file}</p>
-                    <p onClick={() => deleteFile(file, index)}>X</p>
+                    <span className="file-details">
+                      <p>{file.name}</p>
+                      <p>{Math.floor(file.size / 1024)} KB &#x2022; {file.type.split("/").pop()} </p>
+                    </span>
+                    <span className="close-button" onClick={() => deleteFile(file, index)}>X</span>
                   </span>
                 ))}
               </div>
