@@ -103,16 +103,31 @@ function App() {
                 onChange={addFile}
                 name="file"
                 type="file"
-                id="addFile"
+                id="file-input"
                 multiple
-                required
                 directory="true"
                 title=""
               />
+              
               <span className="add-button">+</span>
               <span className="input-text">
                 Add your files <br /> <p>(Max size: 25MB)</p>
+                
               </span>
+              <label className="folder-label" htmlFor="folder-input">or Choose a folder</label>
+              <input
+                onChange={addFile}
+                name="folder"
+                type="file"
+                id="folder-input"
+                multiple
+                webkitdirectory="true"
+                title=""
+                style={{display: "none"}}
+              />
+              
+              
+              
               <div className="uploaded-files"></div>
             </div>
           </div>
