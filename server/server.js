@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const File = require("./models/File");
 const archiver = require("archiver");
 const fs = require("fs");
+require("dotenv").config();
 
 const upload = multer({ dest: "./uploads" });
 const app = express();
@@ -18,7 +19,7 @@ app.use(
 app.use(express.json());
 
 mongoose.connect(
-  "mongodb+srv://nonwhm:bruh123@filesharing.vh4r0an.mongodb.net/?retryWrites=true&w=majority"
+  process.env.MONGO_URI
 );
 
 app.post("/upload", upload.array("file"), async (req, res, next) => {
@@ -81,4 +82,4 @@ app.get("/file/:id", async (req, res) => {
   res.download(file.path, file.originalName);
 });
 
-app.listen(3000);
+app.listen(process.env.PORT || 5000);
