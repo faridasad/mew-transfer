@@ -1,6 +1,7 @@
 import "./app.scss";
 import axios from "axios";
 import { useState, useMemo, useRef } from "react";
+import {formatBytes} from "./utils/sizeFormatter.js";
 
 function App() {
   const [userFiles, setUserFiles] = useState([]);
@@ -91,7 +92,7 @@ function App() {
                   <span key={index} className="filename">
                     <span className="file-details">
                       <p>{file.name}</p>
-                      <p>{Math.floor(file.size / 1024)} KB &#x2022; {file.type.split("/").pop()} </p>
+                      <p>{formatBytes(file.size)} &#x2022; {file.type.split("/").pop()} </p>
                     </span>
                     <span className="close-button" onClick={() => deleteFile(file, index)}>X</span>
                   </span>
