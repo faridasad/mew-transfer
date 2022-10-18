@@ -134,7 +134,14 @@ main {
         justify-content: flex-start;
         padding: 0 1.5rem;
         padding-top: .5rem;
+
+        .folder-label {
+          font-size: .7rem;
+          translate: 55px 25px;
+        }
       }
+
+      
     }
 
     .add-files {
